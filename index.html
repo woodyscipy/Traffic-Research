@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Dashboard: Traffic Anomaly Detection via SSL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Chart Container Styling - Mandatory per requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Card Transitions */
+        .interactive-card {
+            transition: all 0.3s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .active-tab {
+            background-color: #2563eb;
+            color: white;
+        }
+        .inactive-tab {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Spinner for AI */
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- Navigation / Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-lg">T</div>
+                <h1 class="text-xl font-bold text-slate-900">Research Architect <span class="text-slate-400 font-normal">| Traffic Anomaly Detection (SSL)</span></h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#context" class="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Context</a>
+                <a href="#gaps" class="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Research Gaps</a>
+                <a href="#strategy" class="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Publication</a>
+                <button onclick="toggleAiSidebar()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-all">
+                    ✨ AI Assistant
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Section 1: Introduction & Paradigm Shift -->
+        <section id="context" class="animate-fade-in">
+            <div class="max-w-3xl mb-6">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">The Paradigm Shift</h2>
+                <p class="text-slate-600 leading-relaxed">
+                    This research proposes moving away from data-hungry supervised learning towards <strong>Self-Supervised Learning (SSL)</strong> for detecting traffic anomalies. 
+                    This section contrasts the traditional approach with the proposed methodology.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Traditional -->
+                <div class="bg-white p-6 rounded-xl border border-rose-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-rose-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <h3 class="text-lg font-bold text-rose-700 mb-3 relative z-10">⚠️ The Problem: Supervised Learning</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 relative z-10">
+                        <li class="flex items-start">
+                            <span class="mr-2 text-rose-500">●</span>
+                            <span><strong>Label Scarcity:</strong> Requires massive, expensive labeled datasets which are rarely available.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2 text-rose-500">●</span>
+                            <span><strong>Static Topology:</strong> Assumes fixed sensor graphs, failing when traffic patterns shift.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Proposed -->
+                <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                    <h3 class="text-lg font-bold text-emerald-700 mb-3 relative z-10">🚀 The Solution: Self-Supervised Learning</h3>
+                    <ul class="space-y-3 text-sm text-slate-600 relative z-10">
+                        <li class="flex items-start">
+                            <span class="mr-2 text-emerald-500">●</span>
+                            <span><strong>Label Efficiency:</strong> Learns robust representations from <em>unlabeled</em> data.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="mr-2 text-emerald-500">●</span>
+                            <span><strong>Dynamic Understanding:</strong> Captures evolving spatiotemporal dependencies.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Research Gaps Analysis (Interactive) -->
+        <section id="gaps" class="bg-slate-50">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Identified Research Gaps</h2>
+                <p class="text-slate-600 text-sm">Select a gap to see the detailed analysis and proposed SSL solution.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="space-y-4 lg:col-span-1">
+                    <button onclick="updateGapView('topology')" id="btn-topology" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all active-gap">
+                        <h4 class="font-bold text-slate-800">Dynamic Graph Topology</h4>
+                        <p class="text-xs text-slate-500 mt-1">Changing network structures</p>
+                    </button>
+                    <button onclick="updateGapView('interpretability')" id="btn-interpretability" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
+                        <h4 class="font-bold text-slate-800">Model Interpretability</h4>
+                        <p class="text-xs text-slate-500 mt-1">The "Black Box" problem</p>
+                    </button>
+                    <button onclick="updateGapView('domain')" id="btn-domain" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
+                        <h4 class="font-bold text-slate-800">Domain Adaptation</h4>
+                        <p class="text-xs text-slate-500 mt-1">Transferability between cities</p>
+                    </button>
+                    <button onclick="updateGapView('realtime')" id="btn-realtime" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
+                        <h4 class="font-bold text-slate-800">Real-time Constraints</h4>
+                        <p class="text-xs text-slate-500 mt-1">Edge deployment limitations</p>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                    <div id="gap-content" class="mb-6">
+                        <h3 class="text-xl font-bold text-blue-700 mb-2" id="gap-title">Dynamic Graph Topology</h3>
+                        <p class="text-slate-600 text-sm mb-4" id="gap-desc">
+                            Current models often assume fixed sensor graph structures.
+                        </p>
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <strong class="text-blue-900 text-sm block mb-1">Proposed Contribution:</strong>
+                            <p class="text-blue-800 text-sm" id="gap-solution">
+                                Develop dynamic graph learning module.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex-grow flex flex-col justify-end">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capability Gap Analysis</h4>
+                        <div class="chart-container">
+                            <canvas id="gapRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Publication Strategy & ✨ AI Assistant -->
+        <section id="strategy" class="py-6">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 mb-2">Publication Strategy</h2>
+                    <p class="text-slate-600 text-sm">Tailor your research findings for specific Q1 Journals.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+                <div class="flex border-b border-slate-200">
+                    <button onclick="switchJournal('partA')" id="tab-partA" class="flex-1 py-4 text-center font-bold text-sm transition-colors active-tab">
+                        TR Part A: Policy & Practice
+                    </button>
+                    <button onclick="switchJournal('partB')" id="tab-partB" class="flex-1 py-4 text-center font-bold text-sm transition-colors inactive-tab">
+                        TR Part B: Methodological
+                    </button>
+                </div>
+                <div class="p-8">
+                    <div id="journal-content-view">
+                        <!-- Content updated by JS -->
+                         <div class="flex flex-col md:flex-row gap-8">
+                            <div class="flex-1" id="journal-text-display">
+                                <h3 class="text-lg font-bold text-slate-800 mb-2" id="journal-title-display">Focus: Policy Analysis</h3>
+                                <p class="text-slate-600 mb-4 text-sm" id="journal-desc-display">Loading...</p>
+                                <div class="bg-slate-50 p-4 rounded border border-slate-100">
+                                    <strong class="text-slate-700 text-sm block mb-2">✨ AI Contribution Draft</strong>
+                                    <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
+                                        ⚠️ <strong>Note:</strong> Enter your Gemini API key in the "Settings" to enable AI features.
+                                    </div>
+                                    <div id="ai-draft-box" class="text-sm text-slate-500 italic">
+                                        Click the button below to generate a tailored contribution statement for this journal.
+                                    </div>
+                                    <button onclick="generateContributionStatement()" id="draft-btn" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded text-xs font-bold flex items-center gap-2 hover:bg-emerald-700">
+                                        ✨ Generate Draft
+                                    </button>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Metrics -->
+        <section id="plan" class="grid grid-cols-1 gap-8">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">Evaluation Prioritization</h2>
+                <div class="chart-container">
+                    <canvas id="metricsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ✨ AI Sidebar Overlay -->
+    <div id="ai-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[60] flex flex-col border-l border-slate-200">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-blue-50">
+            <h3 class="font-bold text-blue-900 flex items-center gap-2">✨ AI Research Assistant</h3>
+            <button onclick="toggleAiSidebar()" class="text-slate-400 hover:text-slate-600">✕</button>
+        </div>
+        <div id="ai-chat-history" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm">
+            <div class="bg-slate-100 p-3 rounded-lg text-slate-700">
+                Hello! I am your research assistant. Ask me anything about <strong>Self-Supervised Learning</strong> in transportation networks or the current research gaps.
+            </div>
+        </div>
+        <div class="p-4 border-t border-slate-100 bg-slate-50">
+            <div class="flex flex-col gap-2">
+                <input type="text" id="api-key-input" placeholder="Enter Gemini API key..." class="w-full p-2 border border-slate-200 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" style="display: none;">
+                <div class="flex gap-2">
+                    <input type="text" id="ai-input" placeholder="Ask about SSL pretext tasks..." class="flex-grow p-2 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="askAiAssistant()" id="ai-send-btn" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 text-sm">Send</button>
+                </div>
+                <button onclick="toggleApiKeyInput()" class="text-xs text-blue-600 hover:text-blue-800">⚙️ Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm">
+            <p>Research Dashboard with ✨ Gemini AI Integration</p>
+        </div>
+    </footer>
+
+    <script>
+        let apiKey = localStorage.getItem('gemini-api-key') || "";
+        const appId = 'traffic-ssl-research';
+
+        // --- Data ---
+        const gapData = {
+            'topology': {
+                title: "Dynamic Graph Topology",
+                desc: "Current models assume fixed sensor graph structures, failing when traffic patterns shift or infrastructure changes.",
+                solution: "Develop a dynamic graph learning module that updates adjacency matrices in real-time based on flow correlation.",
+                chartData: [3, 8, 4, 5, 2]
+            },
+            'interpretability': {
+                title: "Model Interpretability",
+                desc: "Deep SSL models are often black boxes, making it difficult for engineers to trust flagged anomalies.",
+                solution: "Integrate attention mechanisms to visualize spatiotemporal dependencies.",
+                chartData: [5, 3, 4, 4, 3] 
+            },
+            'domain': {
+                title: "Domain Adaptation",
+                desc: "Difficulty in transferring models trained on one city to another without significant performance loss.",
+                solution: "Utilize adversarial domain adaptation to learn city-invariant traffic representations.",
+                chartData: [4, 5, 3, 5, 4]
+            },
+            'realtime': {
+                title: "Real-time Constraints",
+                desc: "State-of-the-art SSL models are often too heavy for deployment on TMC edge devices.",
+                solution: "Implement model distillation to compress SSL models for edge processing.",
+                chartData: [5, 4, 5, 2, 5]
+            }
+        };
+
+        const journalData = {
+            'partA': {
+                title: "TR Part A: Policy & Practice",
+                desc: "Focuses on the implementation impact and policy shifts enabled by advanced traffic analytics."
+            },
+            'partB': {
+                title: "TR Part B: Methodological",
+                desc: "Focuses on the mathematical rigor and algorithmic innovation of traffic flow modeling."
+            }
+        };
+
+        let activeJournal = 'partA';
+        let radarChartInstance = null;
+        let barChartInstance = null;
+
+        // --- API Key Management ---
+        function toggleApiKeyInput() {
+            const input = document.getElementById('api-key-input');
+            input.style.display = input.style.display === 'none' ? 'block' : 'none';
+            if (input.style.display === 'block') {
+                input.value = apiKey;
+                input.focus();
+                input.onkeypress = (e) => {
+                    if (e.key === 'Enter') {
+                        apiKey = input.value.trim();
+                        localStorage.setItem('gemini-api-key', apiKey);
+                        input.style.display = 'none';
+                        alert('✅ API Key saved! AI features are now enabled.');
+                    }
+                };
+            }
+        }
+
+        // --- AI API Utility ---
+        async function callGemini(prompt, systemPrompt = "You are a specialized assistant for Transportation Research.") {
+            if (!apiKey) {
+                throw new Error("API key not configured. Please enter your Gemini API key in Settings.");
+            }
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.error.message);
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (e) {
+                    if (i < 4) await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
+                    else throw e;
+                }
+            }
+            throw new Error("Failed to reach Gemini after retries.");
+        }
+
+        // --- UI Logic ---
+        function toggleAiSidebar() {
+            const sidebar = document.getElementById('ai-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+
+        async function askAiAssistant() {
+            const input = document.getElementById('ai-input');
+            const history = document.getElementById('ai-chat-history');
+            const btn = document.getElementById('ai-send-btn');
+            const query = input.value.trim();
+            if (!query) return;
+
+            // Add User Message
+            history.innerHTML += `<div class="bg-blue-50 p-3 rounded-lg text-blue-900 font-medium ml-4">You: ${query}</div>`;
+            input.value = "";
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span>';
+
+            try {
+                const response = await callGemini(query, `The user is researching "Anomaly Detection in Traffic Networks using SSL". The current gaps identified are: ${Object.keys(gapData).join(', ')}. Provide expert transportation engineering insights.`);
+                history.innerHTML += `<div class="bg-slate-100 p-3 rounded-lg text-slate-700">✨ AI: ${response}</div>`;
+            } catch (e) {
+                history.innerHTML += `<div class="bg-red-50 p-3 rounded-lg text-red-600">❌ Error: ${e.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Send";
+                history.scrollTop = history.scrollHeight;
+            }
+        }
+
+        async function generateContributionStatement() {
+            const box = document.getElementById('ai-draft-box');
+            const btn = document.getElementById('draft-btn');
+            const journal = journalData[activeJournal];
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> Drafting...';
+            box.innerText = "✨ Gemini is analyzing current gaps to draft your statement...";
+
+            const prompt = `Write a high-impact "Contribution Statement" for a research paper titled "Anomaly Detection in Traffic Networks via Self-Supervised Learning". The target journal is ${journal.title} (${journal.desc}). Focus on how the research fills the gap of ${gapData['topology'].title}. Keep it under 100 words.`;
+
+            try {
+                const draft = await callGemini(prompt, "You are an expert academic editor specializing in Transportation Research Part A and B.");
+                box.innerHTML = `<span class="text-slate-800 font-normal">"${draft}"</span>`;
+            } catch (e) {
+                box.innerHTML = `<span class="text-red-600">❌ ${e.message}</span>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "✨ Regenerate Draft";
+            }
+        }
+
+        function switchJournal(part) {
+            activeJournal = part;
+            const data = journalData[part];
+            document.getElementById('journal-title-display').innerText = data.title;
+            document.getElementById('journal-desc-display').innerText = data.desc;
+            document.getElementById('ai-draft-box').innerText = "Click the button below to generate a tailored contribution statement for this journal.";
+            document.getElementById('draft-btn').innerText = "✨ Generate Draft";
+
+            document.getElementById('tab-partA').className = `flex-1 py-4 text-center font-bold text-sm transition-colors ${part === 'partA' ? 'active-tab' : 'inactive-tab'}`;
+            document.getElementById('tab-partB').className = `flex-1 py-4 text-center font-bold text-sm transition-colors ${part === 'partB' ? 'active-tab' : 'inactive-tab'}`;
+        }
+
+        function updateGapView(gapKey) {
+            document.querySelectorAll('.gap-btn').forEach(btn => btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'));
+            document.getElementById(`btn-${gapKey}`).classList.add('ring-2', 'ring-blue-500', 'bg-blue-50');
+
+            const data = gapData[gapKey];
+            document.getElementById('gap-title').innerText = data.title;
+            document.getElementById('gap-desc').innerText = data.desc;
+            document.getElementById('gap-solution').innerText = data.solution;
+
+            if (radarChartInstance) {
+                radarChartInstance.data.datasets[1].data = data.chartData;
+                radarChartInstance.update();
+            }
+        }
+
+        // --- Charts ---
+        function initCharts() {
+            const rCtx = document.getElementById('gapRadarChart').getContext('2d');
+            radarChartInstance = new Chart(rCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Dynamic Topology', 'Interpretability', 'Domain Transfer', 'Real-time Speed', 'Label Efficiency'],
+                    datasets: [{
+                        label: 'Standard GCN',
+                        data: [3, 2, 2, 4, 2],
+                        backgroundColor: 'rgba(244, 63, 94, 0.2)',
+                        borderColor: 'rgb(244, 63, 94)'
+                    }, {
+                        label: 'Proposed SSL',
+                        data: gapData['topology'].chartData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgb(16, 185, 129)'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { r: { suggestedMax: 9, ticks: { display: false } } } }
+            });
+
+            const bCtx = document.getElementById('metricsChart').getContext('2d');
+            barChartInstance = new Chart(bCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Accuracy', 'F1-Score', 'AUC'],
+                    datasets: [{
+                        data: [40, 95, 90],
+                        backgroundColor: ['#94a3b8', '#2563eb', '#2563eb']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: false } }
+            });
+        }
+
+        window.onload = () => {
+            initCharts();
+            switchJournal('partA');
+        };
+    </script>
+</body>
+</html>
