@@ -3,491 +3,1881 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research Dashboard: Traffic Anomaly Detection via SSL</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>GIS Transportation Research Assessment</title>
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #94a3b8;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-
-        /* Chart Container Styling - Mandatory per requirements */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
-        }
-
-        /* Card Transitions */
-        .interactive-card {
-            transition: all 0.3s ease;
-        }
-        .interactive-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+        
+        :root {
+            --primary: #0A4D3C;
+            --primary-light: #0D6B52;
+            --accent: #F59E0B;
+            --accent-light: #FCD34D;
+            --bg: #FAF9F6;
+            --surface: #FFFFFF;
+            --text: #1A1A1A;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --shadow: rgba(10, 77, 60, 0.08);
         }
         
-        .active-tab {
-            background-color: #2563eb;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #FAF9F6 0%, #F0EFE9 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: -1;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.8s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+        
+        /* Welcome Screen */
+        .welcome-screen {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px var(--shadow);
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .welcome-content h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 1.5rem;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        
+        .input-group {
+            margin: 1.5rem 0;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s ease;
+            background: var(--bg);
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(10, 77, 60, 0.1);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
             color: white;
         }
-        .inactive-tab {
-            background-color: #e2e8f0;
-            color: #475569;
+        
+        /* Progress Bar */
+        .progress-container {
+            margin: 2rem 0;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 24px var(--shadow);
         }
-
-        /* Spinner for AI */
-        .loader {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .progress-count {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: var(--border);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 100px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Question Card */
+        .question-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .question-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .question-number {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: var(--text);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            font-family: 'Space Mono', monospace;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        .question-text {
+            flex: 1;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            line-height: 1.4;
+        }
+        
+        .question-points {
+            background: var(--bg);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        /* Options */
+        .options {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .option {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .option input[type="radio"],
+        .option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 1rem;
+        }
+        
+        .option input:checked + .option-label {
+            background: rgba(10, 77, 60, 0.05);
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        
+        .option-label:hover {
+            border-color: var(--primary-light);
+            transform: translateX(4px);
+        }
+        
+        .option-marker {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
         }
+        
+        .option input:checked + .option-label .option-marker {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .option input:checked + .option-label .option-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .option-text {
+            flex: 1;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        
+        /* Checkbox specific */
+        .option input[type="checkbox"] + .option-label .option-marker {
+            border-radius: 6px;
+        }
+        
+        .option input[type="checkbox"]:checked + .option-label .option-marker::after {
+            width: 12px;
+            height: 6px;
+            border: none;
+            background: transparent;
+            border-left: 2px solid white;
+            border-bottom: 2px solid white;
+            transform: translate(-50%, -65%) rotate(-45deg);
+        }
+        
+        /* Rating Scale */
+        .rating-scale {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .rating-option {
+            position: relative;
+        }
+        
+        .rating-option input {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .rating-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .rating-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            color: var(--primary);
+        }
+        
+        .rating-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .rating-option input:checked + .rating-label {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+        
+        .rating-option input:checked + .rating-label .rating-number,
+        .rating-option input:checked + .rating-label .rating-text {
+            color: white;
+        }
+        
+        .rating-label:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Text Area */
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: var(--bg);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(10, 77, 60, 0.1);
+        }
+        
+        /* Navigation */
+        .navigation {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px var(--shadow);
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 2rem auto;
+            position: relative;
+        }
+        
+        .score-circle svg {
+            transform: rotate(-90deg);
+        }
+        
+        .score-circle-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 12;
+        }
+        
+        .score-circle-fill {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+        
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .score-total {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+        
+        .performance-badge {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .performance-excellent {
+            background: linear-gradient(135deg, #10B981, #34D399);
+            color: white;
+        }
+        
+        .performance-good {
+            background: linear-gradient(135deg, #3B82F6, #60A5FA);
+            color: white;
+        }
+        
+        .performance-satisfactory {
+            background: linear-gradient(135deg, #F59E0B, #FCD34D);
+            color: var(--text);
+        }
+        
+        .performance-developing {
+            background: linear-gradient(135deg, #F97316, #FB923C);
+            color: white;
+        }
+        
+        .performance-needs-improvement {
+            background: linear-gradient(135deg, #EF4444, #F87171);
+            color: white;
+        }
+        
+        .section-scores {
+            display: grid;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .section-score-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 12px;
+        }
+        
+        .section-name {
+            flex: 1;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .section-score {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--text);
+        }
+        
+        .section-bar {
+            flex: 2;
+            height: 8px;
+            background: var(--border);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        
+        .section-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 100px;
+            transition: width 0.8s ease-out;
+        }
+        
+        .recommendations {
+            background: rgba(10, 77, 60, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary);
+            margin: 2rem 0;
+        }
+        
+        .recommendations h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendations li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .recommendations li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .research-topics {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .topic-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .topic-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px var(--shadow);
+            transform: translateY(-4px);
+        }
+        
+        .topic-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .topic-category {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--text);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .topic-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .topic-score {
+            font-family: 'Space Mono', monospace;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .question-card,
+            .welcome-screen,
+            .results-screen {
+                padding: 2rem 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rating-scale {
+                justify-content: center;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
-
-    <!-- Navigation / Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-lg">T</div>
-                <h1 class="text-xl font-bold text-slate-900">Research Architect <span class="text-slate-400 font-normal">| Traffic Anomaly Detection (SSL)</span></h1>
-            </div>
-            <nav class="hidden md:flex items-center space-x-8">
-                <a href="#context" class="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Context</a>
-                <a href="#gaps" class="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Research Gaps</a>
-                <a href="#strategy" class="text-slate-600 hover:text-blue-600 text-sm font-medium transition-colors">Publication</a>
-                <button onclick="toggleAiSidebar()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-all">
-                    ✨ AI Assistant
-                </button>
-            </nav>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-badge">Ph.D. Research Assessment</div>
+            <h1>GIS Transportation<br>Research Topic Selector</h1>
+            <p class="subtitle">Specialized assessment for Q1 journal publication readiness</p>
         </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-
-        <!-- Section 1: Introduction & Paradigm Shift -->
-        <section id="context" class="animate-fade-in">
-            <div class="max-w-3xl mb-6">
-                <h2 class="text-3xl font-bold text-slate-900 mb-2">The Paradigm Shift</h2>
-                <p class="text-slate-600 leading-relaxed">
-                    This research proposes moving away from data-hungry supervised learning towards <strong>Self-Supervised Learning (SSL)</strong> for detecting traffic anomalies. 
-                    This section contrasts the traditional approach with the proposed methodology.
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="welcome-screen">
+            <div class="welcome-content">
+                <h2>Welcome to Your Research Journey! 🗺️</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                    This specialized assessment will help you identify the most promising GIS-based 
+                    transportation research topics for Q1 journal publication. The quiz evaluates your 
+                    expertise, interests, and resources to recommend personalized research directions.
                 </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Traditional -->
-                <div class="bg-white p-6 rounded-xl border border-rose-100 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-rose-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                    <h3 class="text-lg font-bold text-rose-700 mb-3 relative z-10">⚠️ The Problem: Supervised Learning</h3>
-                    <ul class="space-y-3 text-sm text-slate-600 relative z-10">
-                        <li class="flex items-start">
-                            <span class="mr-2 text-rose-500">●</span>
-                            <span><strong>Label Scarcity:</strong> Requires massive, expensive labeled datasets which are rarely available.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="mr-2 text-rose-500">●</span>
-                            <span><strong>Static Topology:</strong> Assumes fixed sensor graphs, failing when traffic patterns shift.</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Proposed -->
-                <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                    <h3 class="text-lg font-bold text-emerald-700 mb-3 relative z-10">🚀 The Solution: Self-Supervised Learning</h3>
-                    <ul class="space-y-3 text-sm text-slate-600 relative z-10">
-                        <li class="flex items-start">
-                            <span class="mr-2 text-emerald-500">●</span>
-                            <span><strong>Label Efficiency:</strong> Learns robust representations from <em>unlabeled</em> data.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="mr-2 text-emerald-500">●</span>
-                            <span><strong>Dynamic Understanding:</strong> Captures evolving spatiotemporal dependencies.</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 2: Research Gaps Analysis (Interactive) -->
-        <section id="gaps" class="bg-slate-50">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-slate-900 mb-2">Identified Research Gaps</h2>
-                <p class="text-slate-600 text-sm">Select a gap to see the detailed analysis and proposed SSL solution.</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="space-y-4 lg:col-span-1">
-                    <button onclick="updateGapView('topology')" id="btn-topology" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all active-gap">
-                        <h4 class="font-bold text-slate-800">Dynamic Graph Topology</h4>
-                        <p class="text-xs text-slate-500 mt-1">Changing network structures</p>
-                    </button>
-                    <button onclick="updateGapView('interpretability')" id="btn-interpretability" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
-                        <h4 class="font-bold text-slate-800">Model Interpretability</h4>
-                        <p class="text-xs text-slate-500 mt-1">The "Black Box" problem</p>
-                    </button>
-                    <button onclick="updateGapView('domain')" id="btn-domain" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
-                        <h4 class="font-bold text-slate-800">Domain Adaptation</h4>
-                        <p class="text-xs text-slate-500 mt-1">Transferability between cities</p>
-                    </button>
-                    <button onclick="updateGapView('realtime')" id="btn-realtime" class="gap-btn w-full text-left p-4 rounded-lg bg-white border border-slate-200 shadow-sm hover:border-blue-400 transition-all">
-                        <h4 class="font-bold text-slate-800">Real-time Constraints</h4>
-                        <p class="text-xs text-slate-500 mt-1">Edge deployment limitations</p>
-                    </button>
-                </div>
-
-                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col">
-                    <div id="gap-content" class="mb-6">
-                        <h3 class="text-xl font-bold text-blue-700 mb-2" id="gap-title">Dynamic Graph Topology</h3>
-                        <p class="text-slate-600 text-sm mb-4" id="gap-desc">
-                            Current models often assume fixed sensor graph structures.
-                        </p>
-                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                            <strong class="text-blue-900 text-sm block mb-1">Proposed Contribution:</strong>
-                            <p class="text-blue-800 text-sm" id="gap-solution">
-                                Develop dynamic graph learning module.
-                            </p>
-                        </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">20</div>
+                        <div class="stat-label">Questions</div>
                     </div>
-                    <div class="flex-grow flex flex-col justify-end">
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Capability Gap Analysis</h4>
-                        <div class="chart-container">
-                            <canvas id="gapRadarChart"></canvas>
-                        </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100</div>
+                        <div class="stat-label">Total Points</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">Minutes</div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Section 3: Publication Strategy & ✨ AI Assistant -->
-        <section id="strategy" class="py-6">
-            <div class="mb-6 flex justify-between items-end">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-900 mb-2">Publication Strategy</h2>
-                    <p class="text-slate-600 text-sm">Tailor your research findings for specific Q1 Journals.</p>
+                
+                <div class="input-group">
+                    <label for="studentName">Your Name</label>
+                    <input type="text" id="studentName" placeholder="Enter your full name" required>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
-                <div class="flex border-b border-slate-200">
-                    <button onclick="switchJournal('partA')" id="tab-partA" class="flex-1 py-4 text-center font-bold text-sm transition-colors active-tab">
-                        TR Part A: Policy & Practice
-                    </button>
-                    <button onclick="switchJournal('partB')" id="tab-partB" class="flex-1 py-4 text-center font-bold text-sm transition-colors inactive-tab">
-                        TR Part B: Methodological
+                
+                <div class="input-group">
+                    <label for="studentId">Student ID</label>
+                    <input type="text" id="studentId" placeholder="Enter your student ID" required>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="startQuiz()">
+                        Begin Assessment →
                     </button>
                 </div>
-                <div class="p-8">
-                    <div id="journal-content-view">
-                        <!-- Content updated by JS -->
-                         <div class="flex flex-col md:flex-row gap-8">
-                            <div class="flex-1" id="journal-text-display">
-                                <h3 class="text-lg font-bold text-slate-800 mb-2" id="journal-title-display">Focus: Policy Analysis</h3>
-                                <p class="text-slate-600 mb-4 text-sm" id="journal-desc-display">Loading...</p>
-                                <div class="bg-slate-50 p-4 rounded border border-slate-100">
-                                    <strong class="text-slate-700 text-sm block mb-2">✨ AI Contribution Draft</strong>
-                                    <div class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-                                        ⚠️ <strong>Note:</strong> Enter your Gemini API key in the "Settings" to enable AI features.
-                                    </div>
-                                    <div id="ai-draft-box" class="text-sm text-slate-500 italic">
-                                        Click the button below to generate a tailored contribution statement for this journal.
-                                    </div>
-                                    <button onclick="generateContributionStatement()" id="draft-btn" class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded text-xs font-bold flex items-center gap-2 hover:bg-emerald-700">
-                                        ✨ Generate Draft
-                                    </button>
-                                </div>
-                            </div>
-                         </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 4: Metrics -->
-        <section id="plan" class="grid grid-cols-1 gap-8">
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">Evaluation Prioritization</h2>
-                <div class="chart-container">
-                    <canvas id="metricsChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ✨ AI Sidebar Overlay -->
-    <div id="ai-sidebar" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-[60] flex flex-col border-l border-slate-200">
-        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-blue-50">
-            <h3 class="font-bold text-blue-900 flex items-center gap-2">✨ AI Research Assistant</h3>
-            <button onclick="toggleAiSidebar()" class="text-slate-400 hover:text-slate-600">✕</button>
-        </div>
-        <div id="ai-chat-history" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm">
-            <div class="bg-slate-100 p-3 rounded-lg text-slate-700">
-                Hello! I am your research assistant. Ask me anything about <strong>Self-Supervised Learning</strong> in transportation networks or the current research gaps.
             </div>
         </div>
-        <div class="p-4 border-t border-slate-100 bg-slate-50">
-            <div class="flex flex-col gap-2">
-                <input type="text" id="api-key-input" placeholder="Enter Gemini API key..." class="w-full p-2 border border-slate-200 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" style="display: none;">
-                <div class="flex gap-2">
-                    <input type="text" id="ai-input" placeholder="Ask about SSL pretext tasks..." class="flex-grow p-2 border border-slate-200 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="askAiAssistant()" id="ai-send-btn" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 text-sm">Send</button>
-                </div>
-                <button onclick="toggleApiKeyInput()" class="text-xs text-blue-600 hover:text-blue-800">⚙️ Settings</button>
+
+        <!-- Progress Bar (hidden initially) -->
+        <div id="progressContainer" class="progress-container hidden">
+            <div class="progress-header">
+                <span class="progress-label">Assessment Progress</span>
+                <span class="progress-count"><span id="currentQuestion">1</span> of <span id="totalQuestions">20</span></span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
             </div>
         </div>
+
+        <!-- Quiz Container (hidden initially) -->
+        <div id="quizContainer" class="hidden"></div>
+
+        <!-- Results Screen (hidden initially) -->
+        <div id="resultsScreen" class="results-screen hidden"></div>
     </div>
 
-    <footer class="bg-slate-900 text-slate-400 py-8 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm">
-            <p>Research Dashboard with ✨ Gemini AI Integration</p>
-        </div>
-    </footer>
-
     <script>
-        let apiKey = localStorage.getItem('gemini-api-key') || "";
-        const appId = 'traffic-ssl-research';
-
-        // --- Data ---
-        const gapData = {
-            'topology': {
-                title: "Dynamic Graph Topology",
-                desc: "Current models assume fixed sensor graph structures, failing when traffic patterns shift or infrastructure changes.",
-                solution: "Develop a dynamic graph learning module that updates adjacency matrices in real-time based on flow correlation.",
-                chartData: [3, 8, 4, 5, 2]
-            },
-            'interpretability': {
-                title: "Model Interpretability",
-                desc: "Deep SSL models are often black boxes, making it difficult for engineers to trust flagged anomalies.",
-                solution: "Integrate attention mechanisms to visualize spatiotemporal dependencies.",
-                chartData: [5, 3, 4, 4, 3] 
-            },
-            'domain': {
-                title: "Domain Adaptation",
-                desc: "Difficulty in transferring models trained on one city to another without significant performance loss.",
-                solution: "Utilize adversarial domain adaptation to learn city-invariant traffic representations.",
-                chartData: [4, 5, 3, 5, 4]
-            },
-            'realtime': {
-                title: "Real-time Constraints",
-                desc: "State-of-the-art SSL models are often too heavy for deployment on TMC edge devices.",
-                solution: "Implement model distillation to compress SSL models for edge processing.",
-                chartData: [5, 4, 5, 2, 5]
-            }
-        };
-
-        const journalData = {
-            'partA': {
-                title: "TR Part A: Policy & Practice",
-                desc: "Focuses on the implementation impact and policy shifts enabled by advanced traffic analytics."
-            },
-            'partB': {
-                title: "TR Part B: Methodological",
-                desc: "Focuses on the mathematical rigor and algorithmic innovation of traffic flow modeling."
-            }
-        };
-
-        let activeJournal = 'partA';
-        let radarChartInstance = null;
-        let barChartInstance = null;
-
-        // --- API Key Management ---
-        function toggleApiKeyInput() {
-            const input = document.getElementById('api-key-input');
-            input.style.display = input.style.display === 'none' ? 'block' : 'none';
-            if (input.style.display === 'block') {
-                input.value = apiKey;
-                input.focus();
-                input.onkeypress = (e) => {
-                    if (e.key === 'Enter') {
-                        apiKey = input.value.trim();
-                        localStorage.setItem('gemini-api-key', apiKey);
-                        input.style.display = 'none';
-                        alert('✅ API Key saved! AI features are now enabled.');
+        // Quiz Data
+        const quizData = [
+            {
+                section: "GIS Expertise Assessment",
+                sectionPoints: 20,
+                questions: [
+                    {
+                        id: 1,
+                        question: "What is your proficiency level with GIS software?",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "Beginner" },
+                            { value: 2, label: "Basic" },
+                            { value: 3, label: "Intermediate" },
+                            { value: 4, label: "Advanced" },
+                            { value: 5, label: "Expert" }
+                        ]
+                    },
+                    {
+                        id: 2,
+                        question: "Which GIS tools are you proficient in?",
+                        type: "checkbox",
+                        points: 5,
+                        maxSelections: null,
+                        options: [
+                            "ArcGIS Pro / ArcMap",
+                            "QGIS (Open Source)",
+                            "Google Earth Engine",
+                            "PostGIS / Spatial Databases",
+                            "Python Spatial Libraries (GeoPandas, Shapely, Folium)",
+                            "R Spatial Packages (sf, sp, tmap)",
+                            "Web GIS (Leaflet, Mapbox, ArcGIS Online)"
+                        ],
+                        scoring: {
+                            "7+": 5,
+                            "5-6": 4,
+                            "3-4": 3,
+                            "1-2": 2,
+                            "0": 0
+                        }
+                    },
+                    {
+                        id: 3,
+                        question: "Rate your experience with spatial analysis techniques",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "None" },
+                            { value: 2, label: "Basic" },
+                            { value: 3, label: "Good" },
+                            { value: 4, label: "Very Good" },
+                            { value: 5, label: "Expert" }
+                        ]
+                    },
+                    {
+                        id: 4,
+                        question: "Which spatial analysis methods have you used?",
+                        type: "checkbox",
+                        points: 5,
+                        options: [
+                            "Network Analysis (Routing, Service Areas)",
+                            "Spatial Statistics (Hot Spot, Clustering)",
+                            "Spatial Regression Analysis",
+                            "Geostatistics (Kriging, Interpolation)",
+                            "Multi-Criteria Decision Analysis (MCDA)",
+                            "3D Spatial Analysis",
+                            "Temporal-Spatial Analysis"
+                        ],
+                        scoring: {
+                            "5+": 5,
+                            "3-4": 4,
+                            "2": 2,
+                            "1": 1,
+                            "0": 0
+                        }
                     }
-                };
+                ]
+            },
+            {
+                section: "Transportation Domain Knowledge",
+                sectionPoints: 20,
+                questions: [
+                    {
+                        id: 5,
+                        question: "Which transportation domain interests you most for GIS research?",
+                        type: "radio",
+                        points: 5,
+                        options: [
+                            "Urban Transit Planning & Optimization",
+                            "Traffic Flow Analysis & Management",
+                            "Transportation Network Design",
+                            "Freight & Logistics Optimization",
+                            "Sustainable & Green Transportation",
+                            "Autonomous & Connected Vehicles",
+                            "Multimodal Transportation Integration",
+                            "Transportation Safety & Risk Assessment"
+                        ]
+                    },
+                    {
+                        id: 6,
+                        question: "Rate your knowledge of transportation planning principles",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "Basic" },
+                            { value: 2, label: "Limited" },
+                            { value: 3, label: "Moderate" },
+                            { value: 4, label: "Strong" },
+                            { value: 5, label: "Expert" }
+                        ]
+                    },
+                    {
+                        id: 7,
+                        question: "Which transportation data types have you worked with?",
+                        type: "checkbox",
+                        points: 5,
+                        options: [
+                            "GPS/GNSS Trajectory Data",
+                            "Traffic Volume & Speed Data",
+                            "Public Transit GTFS Data",
+                            "Origin-Destination (O-D) Matrices",
+                            "Remote Sensing / Satellite Imagery",
+                            "Mobile Phone / CDR Data",
+                            "Social Media Location Data",
+                            "Crowdsourced Traffic Data (Waze, Google)"
+                        ],
+                        scoring: {
+                            "6+": 5,
+                            "4-5": 4,
+                            "2-3": 3,
+                            "1": 2,
+                            "0": 0
+                        }
+                    },
+                    {
+                        id: 8,
+                        question: "What motivates your GIS-transportation research?",
+                        type: "checkbox",
+                        points: 5,
+                        maxSelections: 3,
+                        options: [
+                            "Solving urban mobility challenges",
+                            "Environmental sustainability",
+                            "Smart city development",
+                            "Transportation equity & accessibility",
+                            "Big data & AI applications",
+                            "Policy & decision support",
+                            "Traffic safety improvement",
+                            "Economic efficiency"
+                        ],
+                        scoring: {
+                            "exactly-3": 5,
+                            "2": 3,
+                            "1": 2,
+                            "4+": 2
+                        }
+                    }
+                ]
+            },
+            {
+                section: "Technical & Analytical Skills",
+                sectionPoints: 25,
+                questions: [
+                    {
+                        id: 9,
+                        question: "Rate your programming skills for spatial analysis",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "None" },
+                            { value: 2, label: "Beginner" },
+                            { value: 3, label: "Intermediate" },
+                            { value: 4, label: "Advanced" },
+                            { value: 5, label: "Expert" }
+                        ]
+                    },
+                    {
+                        id: 10,
+                        question: "Which analytical techniques are you familiar with?",
+                        type: "checkbox",
+                        points: 5,
+                        options: [
+                            "Machine Learning (Classification, Clustering)",
+                            "Deep Learning (CNN, RNN, LSTM)",
+                            "Statistical Modeling & Regression",
+                            "Time Series Analysis",
+                            "Optimization Algorithms",
+                            "Graph Theory & Network Analysis",
+                            "Agent-Based Modeling",
+                            "Simulation (Traffic, Transit)"
+                        ],
+                        scoring: {
+                            "6+": 5,
+                            "4-5": 4,
+                            "2-3": 3,
+                            "1": 2,
+                            "0": 0
+                        }
+                    },
+                    {
+                        id: 11,
+                        question: "Rate your experience with Big Data technologies",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "None" },
+                            { value: 2, label: "Limited" },
+                            { value: 3, label: "Moderate" },
+                            { value: 4, label: "Good" },
+                            { value: 5, label: "Expert" }
+                        ]
+                    },
+                    {
+                        id: 12,
+                        question: "Which emerging technologies interest you for GIS-transport research?",
+                        type: "checkbox",
+                        points: 5,
+                        maxSelections: 3,
+                        options: [
+                            "IoT & Sensor Networks",
+                            "Cloud Computing & Edge Computing",
+                            "Digital Twins",
+                            "Blockchain for Transportation",
+                            "Computer Vision & Image Processing",
+                            "5G & V2X Communication",
+                            "Augmented/Virtual Reality",
+                            "Quantum Computing"
+                        ],
+                        scoring: {
+                            "exactly-3": 5,
+                            "2": 3,
+                            "1": 2,
+                            "4+": 2
+                        }
+                    },
+                    {
+                        id: 13,
+                        question: "How familiar are you with spatial database management?",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "Not at all" },
+                            { value: 2, label: "Slightly" },
+                            { value: 3, label: "Moderately" },
+                            { value: 4, label: "Very" },
+                            { value: 5, label: "Extremely" }
+                        ]
+                    }
+                ]
+            },
+            {
+                section: "Research Resources & Feasibility",
+                sectionPoints: 15,
+                questions: [
+                    {
+                        id: 14,
+                        question: "What resources do you have access to?",
+                        type: "checkbox",
+                        points: 5,
+                        options: [
+                            "High-quality spatial datasets",
+                            "GIS software licenses (ArcGIS Pro, etc.)",
+                            "High-performance computing resources",
+                            "Transportation data APIs",
+                            "Industry/government partnerships",
+                            "Field survey capabilities",
+                            "Cloud computing credits",
+                            "Research funding"
+                        ],
+                        scoring: {
+                            "6+": 5,
+                            "4-5": 4,
+                            "2-3": 3,
+                            "1": 2,
+                            "0": 0
+                        }
+                    },
+                    {
+                        id: 15,
+                        question: "Can you collect or access real-world transportation data?",
+                        type: "radio",
+                        points: 5,
+                        options: [
+                            "Yes, I have direct access to data sources",
+                            "Yes, through collaborations/partnerships",
+                            "Possibly, with some effort",
+                            "Limited access to public datasets only",
+                            "No current access"
+                        ],
+                        scoring: {
+                            0: 5,
+                            1: 4,
+                            2: 3,
+                            3: 2,
+                            4: 1
+                        }
+                    },
+                    {
+                        id: 16,
+                        question: "Rate your familiarity with Q1 GIS/Transportation journals",
+                        type: "rating",
+                        points: 5,
+                        options: [
+                            { value: 1, label: "None" },
+                            { value: 2, label: "Limited" },
+                            { value: 3, label: "Moderate" },
+                            { value: 4, label: "Good" },
+                            { value: 5, label: "Excellent" }
+                        ]
+                    }
+                ]
+            },
+            {
+                section: "Research Vision & Literature",
+                sectionPoints: 20,
+                questions: [
+                    {
+                        id: 17,
+                        question: "Which GIS-transportation research trends interest you most?",
+                        type: "checkbox",
+                        points: 5,
+                        maxSelections: 5,
+                        options: [
+                            "Real-time traffic prediction using AI & spatial data",
+                            "Transit accessibility & equity mapping",
+                            "EV charging station location optimization",
+                            "Autonomous vehicle routing & infrastructure",
+                            "Crowd-sourced data for transportation planning",
+                            "Climate resilience in transport networks",
+                            "Multimodal trip planning & MaaS",
+                            "Urban air quality & transportation emissions",
+                            "Smart parking & on-demand mobility",
+                            "Disaster response & emergency routing",
+                            "Last-mile delivery optimization",
+                            "Bike/pedestrian infrastructure planning"
+                        ],
+                        scoring: {
+                            "exactly-5": 5,
+                            "3-4": 3,
+                            "1-2": 2,
+                            "6+": 2
+                        }
+                    },
+                    {
+                        id: 18,
+                        question: "Have you identified a specific research gap in GIS-transportation?",
+                        type: "radio",
+                        points: 5,
+                        options: [
+                            "Yes, I have a clear gap with supporting literature",
+                            "Yes, but need to refine it further",
+                            "Partially, still exploring options",
+                            "No, but I have general interests",
+                            "Not yet identified"
+                        ],
+                        scoring: {
+                            0: 5,
+                            1: 4,
+                            2: 3,
+                            3: 2,
+                            4: 0
+                        }
+                    },
+                    {
+                        id: 19,
+                        question: "How many recent GIS-transportation papers have you read (2022-2025)?",
+                        type: "radio",
+                        points: 5,
+                        options: [
+                            "20+ papers (comprehensive review)",
+                            "10-19 papers (good foundation)",
+                            "5-9 papers (moderate awareness)",
+                            "1-4 papers (limited exposure)",
+                            "None yet"
+                        ],
+                        scoring: {
+                            0: 5,
+                            1: 4,
+                            2: 3,
+                            3: 1,
+                            4: 0
+                        }
+                    },
+                    {
+                        id: 20,
+                        question: "What is your realistic timeline for first journal submission?",
+                        type: "radio",
+                        points: 5,
+                        options: [
+                            "6-12 months (optimal timeline)",
+                            "12-18 months (realistic)",
+                            "18-24 months (comfortable)",
+                            "24+ months (long-term)",
+                            "Uncertain"
+                        ],
+                        scoring: {
+                            0: 5,
+                            1: 4,
+                            2: 3,
+                            3: 2,
+                            4: 0
+                        }
+                    }
+                ]
             }
+        ];
+
+        // State
+        let currentQuestionIndex = 0;
+        let answers = {};
+        let studentName = '';
+        let studentId = '';
+        let totalQuestions = 0;
+
+        // Calculate total questions
+        quizData.forEach(section => {
+            totalQuestions += section.questions.length;
+        });
+
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            studentId = document.getElementById('studentId').value.trim();
+
+            if (!studentName || !studentId) {
+                alert('Please enter your name and student ID');
+                return;
+            }
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('progressContainer').classList.remove('hidden');
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            
+            renderQuestion();
         }
 
-        // --- AI API Utility ---
-        async function callGemini(prompt, systemPrompt = "You are a specialized assistant for Transportation Research.") {
-            if (!apiKey) {
-                throw new Error("API key not configured. Please enter your Gemini API key in Settings.");
-            }
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
-            };
-
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+        function getAllQuestions() {
+            let allQuestions = [];
+            quizData.forEach(section => {
+                section.questions.forEach(q => {
+                    allQuestions.push({
+                        ...q,
+                        sectionName: section.section
                     });
-                    const data = await response.json();
-                    if (data.error) throw new Error(data.error.message);
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (e) {
-                    if (i < 4) await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-                    else throw e;
+                });
+            });
+            return allQuestions;
+        }
+
+        function renderQuestion() {
+            const allQuestions = getAllQuestions();
+            const question = allQuestions[currentQuestionIndex];
+            
+            updateProgress();
+
+            let optionsHTML = '';
+            
+            if (question.type === 'radio') {
+                optionsHTML = '<div class="options">';
+                question.options.forEach((option, index) => {
+                    const optionValue = typeof option === 'string' ? option : option.label;
+                    const checked = answers[question.id] === index ? 'checked' : '';
+                    optionsHTML += `
+                        <div class="option">
+                            <input type="radio" 
+                                   id="q${question.id}_${index}" 
+                                   name="q${question.id}" 
+                                   value="${index}"
+                                   ${checked}
+                                   onchange="saveAnswer(${question.id}, ${index}, 'radio')">
+                            <label class="option-label" for="q${question.id}_${index}">
+                                <span class="option-marker"></span>
+                                <span class="option-text">${optionValue}</span>
+                            </label>
+                        </div>
+                    `;
+                });
+                optionsHTML += '</div>';
+            } 
+            else if (question.type === 'checkbox') {
+                optionsHTML = '<div class="options">';
+                question.options.forEach((option, index) => {
+                    const isChecked = answers[question.id] && answers[question.id].includes(index);
+                    optionsHTML += `
+                        <div class="option">
+                            <input type="checkbox" 
+                                   id="q${question.id}_${index}" 
+                                   name="q${question.id}" 
+                                   value="${index}"
+                                   ${isChecked ? 'checked' : ''}
+                                   onchange="saveAnswer(${question.id}, ${index}, 'checkbox')">
+                            <label class="option-label" for="q${question.id}_${index}">
+                                <span class="option-marker"></span>
+                                <span class="option-text">${option}</span>
+                            </label>
+                        </div>
+                    `;
+                });
+                optionsHTML += '</div>';
+                if (question.maxSelections) {
+                    optionsHTML += `<p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Select exactly ${question.maxSelections} options</p>`;
                 }
             }
-            throw new Error("Failed to reach Gemini after retries.");
-        }
-
-        // --- UI Logic ---
-        function toggleAiSidebar() {
-            const sidebar = document.getElementById('ai-sidebar');
-            sidebar.classList.toggle('translate-x-full');
-        }
-
-        async function askAiAssistant() {
-            const input = document.getElementById('ai-input');
-            const history = document.getElementById('ai-chat-history');
-            const btn = document.getElementById('ai-send-btn');
-            const query = input.value.trim();
-            if (!query) return;
-
-            // Add User Message
-            history.innerHTML += `<div class="bg-blue-50 p-3 rounded-lg text-blue-900 font-medium ml-4">You: ${query}</div>`;
-            input.value = "";
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loader"></span>';
-
-            try {
-                const response = await callGemini(query, `The user is researching "Anomaly Detection in Traffic Networks using SSL". The current gaps identified are: ${Object.keys(gapData).join(', ')}. Provide expert transportation engineering insights.`);
-                history.innerHTML += `<div class="bg-slate-100 p-3 rounded-lg text-slate-700">✨ AI: ${response}</div>`;
-            } catch (e) {
-                history.innerHTML += `<div class="bg-red-50 p-3 rounded-lg text-red-600">❌ Error: ${e.message}</div>`;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Send";
-                history.scrollTop = history.scrollHeight;
+            else if (question.type === 'rating') {
+                optionsHTML = '<div class="rating-scale">';
+                question.options.forEach(option => {
+                    const checked = answers[question.id] === option.value ? 'checked' : '';
+                    optionsHTML += `
+                        <div class="rating-option">
+                            <input type="radio" 
+                                   id="q${question.id}_${option.value}" 
+                                   name="q${question.id}" 
+                                   value="${option.value}"
+                                   ${checked}
+                                   onchange="saveAnswer(${question.id}, ${option.value}, 'rating')">
+                            <label class="rating-label" for="q${question.id}_${option.value}">
+                                <span class="rating-number">${option.value}</span>
+                                <span class="rating-text">${option.label}</span>
+                            </label>
+                        </div>
+                    `;
+                });
+                optionsHTML += '</div>';
             }
-        }
 
-        async function generateContributionStatement() {
-            const box = document.getElementById('ai-draft-box');
-            const btn = document.getElementById('draft-btn');
-            const journal = journalData[activeJournal];
+            const questionHTML = `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-number">${currentQuestionIndex + 1}</div>
+                        <div class="question-text">${question.question}</div>
+                        <div class="question-points">${question.points} pts</div>
+                    </div>
+                    ${optionsHTML}
+                    <div class="navigation">
+                        <button class="btn btn-secondary" 
+                                onclick="previousQuestion()" 
+                                ${currentQuestionIndex === 0 ? 'style="visibility: hidden;"' : ''}>
+                            ← Previous
+                        </button>
+                        <button class="btn btn-primary" 
+                                onclick="${currentQuestionIndex === totalQuestions - 1 ? 'finishQuiz()' : 'nextQuestion()'}">
+                            ${currentQuestionIndex === totalQuestions - 1 ? 'Finish Assessment' : 'Next →'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('quizContainer').innerHTML = questionHTML;
+            document.getElementById('quizContainer').classList.remove('hidden');
             
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loader"></span> Drafting...';
-            box.innerText = "✨ Gemini is analyzing current gaps to draft your statement...";
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-            const prompt = `Write a high-impact "Contribution Statement" for a research paper titled "Anomaly Detection in Traffic Networks via Self-Supervised Learning". The target journal is ${journal.title} (${journal.desc}). Focus on how the research fills the gap of ${gapData['topology'].title}. Keep it under 100 words.`;
-
-            try {
-                const draft = await callGemini(prompt, "You are an expert academic editor specializing in Transportation Research Part A and B.");
-                box.innerHTML = `<span class="text-slate-800 font-normal">"${draft}"</span>`;
-            } catch (e) {
-                box.innerHTML = `<span class="text-red-600">❌ ${e.message}</span>`;
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "✨ Regenerate Draft";
+        function saveAnswer(questionId, value, type) {
+            if (type === 'checkbox') {
+                if (!answers[questionId]) {
+                    answers[questionId] = [];
+                }
+                
+                const index = answers[questionId].indexOf(value);
+                if (index > -1) {
+                    answers[questionId].splice(index, 1);
+                } else {
+                    answers[questionId].push(value);
+                }
+            } else {
+                answers[questionId] = value;
             }
         }
 
-        function switchJournal(part) {
-            activeJournal = part;
-            const data = journalData[part];
-            document.getElementById('journal-title-display').innerText = data.title;
-            document.getElementById('journal-desc-display').innerText = data.desc;
-            document.getElementById('ai-draft-box').innerText = "Click the button below to generate a tailored contribution statement for this journal.";
-            document.getElementById('draft-btn').innerText = "✨ Generate Draft";
-
-            document.getElementById('tab-partA').className = `flex-1 py-4 text-center font-bold text-sm transition-colors ${part === 'partA' ? 'active-tab' : 'inactive-tab'}`;
-            document.getElementById('tab-partB').className = `flex-1 py-4 text-center font-bold text-sm transition-colors ${part === 'partB' ? 'active-tab' : 'inactive-tab'}`;
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
         }
 
-        function updateGapView(gapKey) {
-            document.querySelectorAll('.gap-btn').forEach(btn => btn.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50'));
-            document.getElementById(`btn-${gapKey}`).classList.add('ring-2', 'ring-blue-500', 'bg-blue-50');
-
-            const data = gapData[gapKey];
-            document.getElementById('gap-title').innerText = data.title;
-            document.getElementById('gap-desc').innerText = data.desc;
-            document.getElementById('gap-solution').innerText = data.solution;
-
-            if (radarChartInstance) {
-                radarChartInstance.data.datasets[1].data = data.chartData;
-                radarChartInstance.update();
+        function nextQuestion() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
             }
         }
 
-        // --- Charts ---
-        function initCharts() {
-            const rCtx = document.getElementById('gapRadarChart').getContext('2d');
-            radarChartInstance = new Chart(rCtx, {
-                type: 'radar',
-                data: {
-                    labels: ['Dynamic Topology', 'Interpretability', 'Domain Transfer', 'Real-time Speed', 'Label Efficiency'],
-                    datasets: [{
-                        label: 'Standard GCN',
-                        data: [3, 2, 2, 4, 2],
-                        backgroundColor: 'rgba(244, 63, 94, 0.2)',
-                        borderColor: 'rgb(244, 63, 94)'
-                    }, {
-                        label: 'Proposed SSL',
-                        data: gapData['topology'].chartData,
-                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                        borderColor: 'rgb(16, 185, 129)'
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: { suggestedMax: 9, ticks: { display: false } } } }
-            });
-
-            const bCtx = document.getElementById('metricsChart').getContext('2d');
-            barChartInstance = new Chart(bCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Accuracy', 'F1-Score', 'AUC'],
-                    datasets: [{
-                        data: [40, 95, 90],
-                        backgroundColor: ['#94a3b8', '#2563eb', '#2563eb']
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: false } }
-            });
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
         }
 
-        window.onload = () => {
-            initCharts();
-            switchJournal('partA');
-        };
+        function calculateScore() {
+            let totalScore = 0;
+            let sectionScores = {};
+            
+            quizData.forEach(section => {
+                let sectionScore = 0;
+                
+                section.questions.forEach(question => {
+                    const answer = answers[question.id];
+                    let questionScore = 0;
+
+                    if (question.type === 'rating') {
+                        questionScore = (answer / 5) * question.points;
+                    } 
+                    else if (question.type === 'radio') {
+                        if (question.scoring) {
+                            questionScore = question.scoring[answer] || 0;
+                        } else {
+                            questionScore = answer !== undefined ? question.points : 0;
+                        }
+                    }
+                    else if (question.type === 'checkbox') {
+                        const count = answer ? answer.length : 0;
+                        
+                        if (question.scoring) {
+                            if (question.scoring['exactly-3'] && count === 3) {
+                                questionScore = question.scoring['exactly-3'];
+                            } else if (question.scoring['exactly-5'] && count === 5) {
+                                questionScore = question.scoring['exactly-5'];
+                            } else if (question.scoring[count]) {
+                                questionScore = question.scoring[count];
+                            } else {
+                                // Check ranges
+                                for (let key in question.scoring) {
+                                    if (key.includes('+') && count >= parseInt(key)) {
+                                        questionScore = question.scoring[key];
+                                        break;
+                                    } else if (key.includes('-')) {
+                                        const [min, max] = key.split('-').map(Number);
+                                        if (count >= min && count <= max) {
+                                            questionScore = question.scoring[key];
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            questionScore = count > 0 ? question.points : 0;
+                        }
+                    }
+
+                    sectionScore += questionScore;
+                });
+                
+                sectionScores[section.section] = {
+                    score: sectionScore,
+                    maxScore: section.sectionPoints
+                };
+                totalScore += sectionScore;
+            });
+
+            return { totalScore, sectionScores };
+        }
+
+        function getPerformanceLevel(score) {
+            if (score >= 90) return { level: 'EXCELLENT', class: 'performance-excellent', stars: '⭐⭐⭐⭐⭐' };
+            if (score >= 75) return { level: 'GOOD', class: 'performance-good', stars: '⭐⭐⭐⭐' };
+            if (score >= 60) return { level: 'SATISFACTORY', class: 'performance-satisfactory', stars: '⭐⭐⭐' };
+            if (score >= 45) return { level: 'DEVELOPING', class: 'performance-developing', stars: '⭐⭐' };
+            return { level: 'NEEDS IMPROVEMENT', class: 'performance-needs-improvement', stars: '⭐' };
+        }
+
+        function getRecommendedTopics(score, answers) {
+            const topics = [];
+            
+            // Analyze answers to recommend topics
+            const gisExpertise = answers[1] || 1;
+            const transportDomain = answers[5];
+            const aiExperience = answers[10] ? answers[10].length : 0;
+            const bigDataExp = answers[11] || 1;
+            const interests = answers[17] || [];
+
+            // Topic recommendations based on profile
+            if (gisExpertise >= 4 && aiExperience >= 3) {
+                topics.push({
+                    title: "Deep Learning for Real-Time Traffic Prediction Using Spatial-Temporal Data",
+                    category: "AI + GIS",
+                    description: "Develop deep learning models (LSTM, GCN) that integrate spatial road network topology with temporal traffic patterns for accurate short-term traffic forecasting.",
+                    journals: ["Transportation Research Part C", "IEEE TITS"],
+                    score: 95
+                });
+            }
+
+            if (interests.includes(1)) {
+                topics.push({
+                    title: "Equity-Based Transit Accessibility Mapping Using GIS Multi-Criteria Analysis",
+                    category: "Planning + Equity",
+                    description: "Apply spatial MCDA to evaluate public transit accessibility across demographic groups, identifying underserved communities and optimizing service allocation.",
+                    journals: ["Transportation Research Part A", "Journal of Transport Geography"],
+                    score: 88
+                });
+            }
+
+            if (bigDataExp >= 3 && interests.includes(4)) {
+                topics.push({
+                    title: "Crowdsourced Data Integration for Dynamic Urban Mobility Pattern Analysis",
+                    category: "Big Data + Mobility",
+                    description: "Fuse crowdsourced traffic data (Waze, Google Maps) with traditional sensors to detect real-time mobility patterns and predict congestion hotspots.",
+                    journals: ["Transportation Research Part C", "Computers, Environment and Urban Systems"],
+                    score: 90
+                });
+            }
+
+            if (interests.includes(2)) {
+                topics.push({
+                    title: "Optimal Location-Allocation of EV Charging Stations Using Spatial Optimization",
+                    category: "Sustainability + Optimization",
+                    description: "Develop GIS-based optimization models considering traffic flow, grid capacity, and demand patterns to strategically locate EV charging infrastructure.",
+                    journals: ["Applied Energy", "Transportation Research Part D"],
+                    score: 92
+                });
+            }
+
+            if (gisExpertise >= 3 && interests.includes(9)) {
+                topics.push({
+                    title: "Climate Resilience Assessment of Transportation Networks Using Spatial Risk Modeling",
+                    category: "Resilience + Climate",
+                    description: "Create spatial vulnerability indices combining flood risk, heat exposure, and network criticality to identify climate-vulnerable transport infrastructure.",
+                    journals: ["Transportation Research Part D", "Climate Risk Management"],
+                    score: 85
+                });
+            }
+
+            if (aiExperience >= 2) {
+                topics.push({
+                    title: "Computer Vision and GIS Integration for Automated Road Asset Inventory",
+                    category: "CV + Infrastructure",
+                    description: "Use street-level imagery with deep learning to automatically detect and map road features (signs, markings, conditions) in a GIS framework.",
+                    journals: ["Automation in Construction", "ISPRS Journal"],
+                    score: 87
+                });
+            }
+
+            if (interests.includes(6)) {
+                topics.push({
+                    title: "Multi-Modal Transportation Integration for Mobility-as-a-Service Platform Design",
+                    category: "MaaS + Integration",
+                    description: "Develop spatial algorithms for optimal integration of transit, bike-share, and ride-hailing services, creating seamless multimodal trip planning.",
+                    journals: ["Transportation Research Part A", "Transport Policy"],
+                    score: 83
+                });
+            }
+
+            // Add default topics if none matched
+            if (topics.length === 0) {
+                topics.push(
+                    {
+                        title: "GIS-Based Network Analysis for Public Transit Route Optimization",
+                        category: "Transit Planning",
+                        description: "Apply network analysis and spatial optimization to redesign bus routes for maximum coverage and efficiency.",
+                        journals: ["Public Transport", "Journal of Transport Geography"],
+                        score: 80
+                    },
+                    {
+                        title: "Spatial Analysis of Traffic Accidents Using Hot Spot Detection",
+                        category: "Safety Analysis",
+                        description: "Use spatial statistics to identify accident clusters and correlate with road characteristics for targeted safety interventions.",
+                        journals: ["Accident Analysis & Prevention", "Safety Science"],
+                        score: 78
+                    }
+                );
+            }
+
+            // Sort by score
+            topics.sort((a, b) => b.score - a.score);
+            
+            return topics.slice(0, 5);
+        }
+
+        function finishQuiz() {
+            // Show loading
+            document.getElementById('quizContainer').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h3>Analyzing Your Responses...</h3>
+                    <p style="color: var(--text-muted);">Calculating scores and generating personalized recommendations</p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const { totalScore, sectionScores } = calculateScore();
+                const performance = getPerformanceLevel(totalScore);
+                const recommendedTopics = getRecommendedTopics(totalScore, answers);
+
+                displayResults(totalScore, sectionScores, performance, recommendedTopics);
+            }, 2000);
+        }
+
+        function displayResults(totalScore, sectionScores, performance, topics) {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+
+            let sectionScoresHTML = '';
+            for (let section in sectionScores) {
+                const { score, maxScore } = sectionScores[section];
+                const percentage = (score / maxScore) * 100;
+                sectionScoresHTML += `
+                    <div class="section-score-item">
+                        <div class="section-name">${section}</div>
+                        <div class="section-bar">
+                            <div class="section-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="section-score">${score.toFixed(1)}/${maxScore}</div>
+                    </div>
+                `;
+            }
+
+            let topicsHTML = '';
+            topics.forEach((topic, index) => {
+                topicsHTML += `
+                    <div class="topic-card">
+                        <div class="topic-category">${topic.category}</div>
+                        <h3 class="topic-title">${index + 1}. ${topic.title}</h3>
+                        <p class="topic-description">${topic.description}</p>
+                        <p style="margin-top: 0.5rem;"><strong>Target Journals:</strong> ${topic.journals.join(', ')}</p>
+                        <p class="topic-score">Match Score: ${topic.score}/100</p>
+                    </div>
+                `;
+            });
+
+            const recommendations = getRecommendations(totalScore, sectionScores);
+
+            const resultsHTML = `
+                <h2 style="text-align: center; color: var(--primary); margin-bottom: 1rem;">Assessment Complete! 🎉</h2>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
+                    ${studentName} (${studentId})
+                </p>
+
+                <div class="score-circle">
+                    <svg width="200" height="200" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color: var(--primary)" />
+                                <stop offset="100%" style="stop-color: var(--accent)" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="score-circle-bg" cx="100" cy="100" r="90" />
+                        <circle class="score-circle-fill" cx="100" cy="100" r="90" 
+                                stroke-dasharray="${2 * Math.PI * 90}" 
+                                stroke-dashoffset="${2 * Math.PI * 90 * (1 - totalScore / 100)}" />
+                    </svg>
+                    <div class="score-text">
+                        <div class="score-value">${Math.round(totalScore)}</div>
+                        <div class="score-total">/100</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <div class="performance-badge ${performance.class}">
+                        ${performance.level} ${performance.stars}
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem; color: var(--primary);">Section Breakdown</h3>
+                <div class="section-scores">
+                    ${sectionScoresHTML}
+                </div>
+
+                <div class="recommendations">
+                    <h3>Recommendations</h3>
+                    ${recommendations}
+                </div>
+
+                <h3 style="margin-top: 2rem; color: var(--primary);">Recommended Research Topics</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                    Based on your expertise and interests, here are personalized GIS-transportation 
+                    research topics optimized for Q1 journal publication:
+                </p>
+                <div class="research-topics">
+                    ${topicsHTML}
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button class="btn btn-primary" onclick="downloadResults()">
+                        Download Report
+                    </button>
+                    <button class="btn btn-secondary" onclick="location.reload()" style="margin-left: 1rem;">
+                        Retake Assessment
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('resultsScreen').innerHTML = resultsHTML;
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            // Animate score circle
+            setTimeout(() => {
+                const circle = document.querySelector('.score-circle-fill');
+                const circumference = 2 * Math.PI * 90;
+                circle.style.strokeDashoffset = circumference * (1 - totalScore / 100);
+            }, 100);
+        }
+
+        function getRecommendations(score, sectionScores) {
+            let recs = '<ul>';
+            
+            if (score >= 90) {
+                recs += `
+                    <li>Excellent! You're ready for advanced GIS-transportation research</li>
+                    <li>Begin literature review immediately in your chosen topic</li>
+                    <li>Draft research proposal within next 3 months</li>
+                    <li>Target top-tier Q1 journals (TR Part C, IEEE TITS)</li>
+                    <li>Consider presenting at GISRUK or TRB conferences</li>
+                `;
+            } else if (score >= 75) {
+                recs += `
+                    <li>Strong foundation - focus on strengthening weaker areas</li>
+                    <li>Take advanced GIS or spatial statistics courses</li>
+                    <li>Read 15-20 recent papers in your target area</li>
+                    <li>Collaborate with experienced researchers</li>
+                    <li>Start with pilot study to build confidence</li>
+                `;
+            } else if (score >= 60) {
+                recs += `
+                    <li>Good baseline - invest in skill development</li>
+                    <li>Complete online courses: Python for GIS, Spatial Analysis</li>
+                    <li>Practice with open datasets (OpenStreetMap, GTFS)</li>
+                    <li>Join GIS transportation research groups</li>
+                    <li>Work closely with advisor on topic refinement</li>
+                `;
+            } else {
+                recs += `
+                    <li>Foundation building needed - don't rush</li>
+                    <li>Master GIS fundamentals (ArcGIS/QGIS tutorials)</li>
+                    <li>Learn programming basics (Python, R)</li>
+                    <li>Read introductory GIS-transport textbooks</li>
+                    <li>Reassess in 6 months after skill development</li>
+                `;
+            }
+
+            // Check specific section weaknesses
+            for (let section in sectionScores) {
+                const { score, maxScore } = sectionScores[section];
+                const percentage = (score / maxScore) * 100;
+                
+                if (percentage < 60) {
+                    if (section.includes('GIS Expertise')) {
+                        recs += `<li><strong>Priority:</strong> Strengthen GIS software skills through hands-on projects</li>`;
+                    } else if (section.includes('Technical')) {
+                        recs += `<li><strong>Priority:</strong> Develop programming and analytical skills</li>`;
+                    } else if (section.includes('Literature')) {
+                        recs += `<li><strong>Priority:</strong> Conduct comprehensive literature review</li>`;
+                    }
+                }
+            }
+
+            recs += '</ul>';
+            return recs;
+        }
+
+        function downloadResults() {
+            const { totalScore, sectionScores } = calculateScore();
+            const performance = getPerformanceLevel(totalScore);
+            const topics = getRecommendedTopics(totalScore, answers);
+
+            let report = `
+GIS-BASED TRANSPORTATION RESEARCH ASSESSMENT REPORT
+====================================================
+
+Student: ${studentName}
+ID: ${studentId}
+Date: ${new Date().toLocaleDateString()}
+
+OVERALL SCORE: ${Math.round(totalScore)}/100
+Performance Level: ${performance.level} ${performance.stars}
+
+SECTION SCORES:
+--------------
+`;
+
+            for (let section in sectionScores) {
+                const { score, maxScore } = sectionScores[section];
+                report += `${section}: ${score.toFixed(1)}/${maxScore}\n`;
+            }
+
+            report += `\n\nRECOMMENDED RESEARCH TOPICS:\n`;
+            report += `============================\n\n`;
+
+            topics.forEach((topic, index) => {
+                report += `${index + 1}. ${topic.title}\n`;
+                report += `   Category: ${topic.category}\n`;
+                report += `   Description: ${topic.description}\n`;
+                report += `   Target Journals: ${topic.journals.join(', ')}\n`;
+                report += `   Match Score: ${topic.score}/100\n\n`;
+            });
+
+            // Create downloadable file
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `GIS_Transport_Research_Assessment_${studentId}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
